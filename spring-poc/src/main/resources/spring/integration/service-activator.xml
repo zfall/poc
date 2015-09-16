@@ -1,16 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
 	xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
 
-	<!-- <context:component-scan base-package="hu.fall.poc.string.integration" />  -->
+	<context:annotation-config/>
 
-	<bean id="testBean" class="hu.fall.poc.spring.integration.TestBean"/>
-	
+	<bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="tcp://localhost:61616"/>
+			</bean>
+		</property>
+		<property name="sessionCacheSize" value="10"/>
+		<property name="cacheProducers" value="false"/>
+	</bean>
+
+	<bean id="inboundHelloWorldServiceActivator" class="hu.fall.poc.spring.integration.InboundHelloWorldServiceActivator"/>
+
+	<int:channel id="inboundHelloWorldChannel"/>
+
+	<jms:message-driven-channel-adapter
+		channel="inboundHelloWorldChannel"
+		extract-payload="true"
+		connection-factory="connectionFactory"
+		destination-name="helloWorldDestination"/>
+
+	<int:service-activator
+		input-channel="inboundHelloWorldChannel"
+		ref="inboundHelloWorldServiceActivator"/>
+
 </beans>
