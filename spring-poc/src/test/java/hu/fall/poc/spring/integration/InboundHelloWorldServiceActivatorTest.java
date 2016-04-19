@@ -10,10 +10,10 @@ public class InboundHelloWorldServiceActivatorTest extends BaseIntegrationTest {
 		return "spring/integration/service-activator.xml";
 	}
 
-	@Override
-	@Test(enabled=false)
-	protected void testContent() throws Exception
-	{
-		sendTextMessage("helloWorldDestination", "any kind of text");
-	}
+//	@Override
+//	@Test(enabled=false)
+//	protected void testContent() throws Exception
+//	{
+//		sendTextMessage("helloWorldDestination", "any kind of text");
+//	}
 }
